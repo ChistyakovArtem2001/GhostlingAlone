@@ -1,9 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
-
-
-//---------------- Скрипт для концовок ----------------//
-
+using UnityEngine.SceneManagement;
+using System.Collections;
 public class GameEnd : MonoBehaviour
 {
     public ParticleSystem particleSystemToDisable;
@@ -11,6 +9,8 @@ public class GameEnd : MonoBehaviour
     public AudioSource escapeAudio;
     public Canvas escapeCanvas;
     public Text escapeText;
+    public float delayBeforeLoad = 6f; 
+    public bool enableCursorAfterDelay = true; 
 
     private void OnTriggerEnter(Collider other)
     {
@@ -21,6 +21,7 @@ public class GameEnd : MonoBehaviour
                 DisableParticleSystem();
                 PlayEscapeAudio();
                 ShowEscapeUI();
+                StartCoroutine(LoadNextSceneWithDelay());
             }
         }
     }
@@ -43,12 +44,23 @@ public class GameEnd : MonoBehaviour
 
     private void ShowEscapeUI()
     {
- 
-            if (escapeText != null)
-            {
-                escapeText.gameObject.SetActive(true);
-                escapeText.text = "You escaped";
-            }
+        if (escapeText != null)
+        {
+            escapeText.gameObject.SetActive(true);
+            escapeText.text = "You escaped";
+        }
+    }
 
+    private IEnumerator LoadNextSceneWithDelay()
+    {
+        yield return new WaitForSeconds(delayBeforeLoad);
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+
+        if (enableCursorAfterDelay)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 }
